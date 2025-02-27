@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Shooter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #000;
+            font-family: Arial, sans-serif;
+        }
+        #gameContainer {
+            position: relative;
+        }
+        #leaderboardPanel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            display: none;
+            width: 300px;
+        }
+        .score-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #444;
+            padding: 8px;
+            color: white;
+            width: 100%;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .button {
+            background: #304ffe;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #1e40fe;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="leaderboardPanel">
+            <h2>Leaderboard</h2>
+            <div id="leaderboardList"></div>
+            <button class="button" onclick="hideLeaderboard()">Close</button>
+        </div>
+    </div>
+    <script>
+        // Initialize Supabase
+        const supabaseUrl = 'https://vxvlnizpfjndcsgacymr.supabase.co'
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4dmxuaXpwZmpuZGNzZ2FjeW1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA1ODQzMTQsImV4cCI6MjA1NjE2MDMxNH0.FhG2_rMsg6IXxcjRb4CLA3SMiUbMPio7PMt06OBCbBA'
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
+    </script>
+    <script src="sketch.js"></script>
+</body>
+</html>
