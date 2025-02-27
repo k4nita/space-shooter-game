@@ -30,7 +30,7 @@ let leaderboardData = [];
 
 /** Setup function: Initializes the game */
 function setup() {
-  createCanvas(800, 600);
+  createCanvas(400, 500);  // Changed from 800, 600 to be more mobile-friendly
   noSmooth(); // Pixelated look
   ship = new Ship(width / 2, height - 50); // Create ship at bottom center
   // Create stars with twinkle states
