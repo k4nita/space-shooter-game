@@ -27,12 +27,27 @@ let showingLeaderboard = false;
 let submittingScore = false;
 let emailInput = '';
 let leaderboardData = [];
+let emailInputElement;
 
 /** Setup function: Initializes the game */
 function setup() {
   createCanvas(400, 500);  // Changed from 800, 600 to be more mobile-friendly
   noSmooth(); // Pixelated look
   ship = new Ship(width / 2, height - 50); // Create ship at bottom center
+  
+  // Create email input element
+  emailInputElement = createInput('');
+  emailInputElement.position(-1000, -1000); // Hide it initially
+  emailInputElement.attribute('type', 'email');
+  emailInputElement.attribute('placeholder', 'Enter your email');
+  emailInputElement.style('font-size', '16px'); // Good size for mobile
+  emailInputElement.style('padding', '8px');
+  emailInputElement.style('width', '200px');
+  emailInputElement.style('border-radius', '4px');
+  emailInputElement.style('border', '1px solid #444');
+  emailInputElement.style('background', 'rgba(0, 0, 0, 0.7)');
+  emailInputElement.style('color', 'white');
+  
   // Create stars with twinkle states
   for (let i = 0; i < 100; i++) {
     stars.push({ 
@@ -504,7 +519,6 @@ function drawGameOver() {
     rect(random(width), random(height), random(100), 2);
   }
   
-  // Set alignment for all game over text
   textAlign(CENTER, CENTER);
   fill(255);
   textSize(40);
@@ -514,20 +528,19 @@ function drawGameOver() {
   text(`Level Reached: ${level}`, width/2, height/2 + 30);
 
   if (!submittingScore) {
-    // Show email input
     text("Enter your email to save score:", width/2, height/2 + 70);
     
-    // Draw input box
-    fill(0, 0, 0, 150);
-    rect(width/2 - 100, height/2 + 90, 200, 30);
-    fill(255);
-    text(emailInput + (frameCount % 60 < 30 ? '|' : ''), width/2, height/2 + 105);
+    // Position the email input lower
+    emailInputElement.position(
+      windowWidth/2 - 100,
+      windowHeight/2 + 90  // Changed from 40 to 90 to move it down
+    );
     
     // Center point for button alignment
     let buttonY = height/2 + 140;
     
     // Draw submit button (shifted left)
-    let submitX = width/2 - 60;  // Move submit button left
+    let submitX = width/2 - 60;
     if (mouseY > buttonY - 15 && mouseY < buttonY + 15 && 
         mouseX > submitX - 50 && mouseX < submitX + 50) {
       fill(0, 255, 0);
@@ -539,7 +552,7 @@ function drawGameOver() {
     text("Submit", submitX, buttonY);
 
     // Draw skip button (shifted right)
-    let skipX = width/2 + 60;  // Move skip button right
+    let skipX = width/2 + 60;
     if (mouseY > buttonY - 15 && mouseY < buttonY + 15 && 
         mouseX > skipX - 50 && mouseX < skipX + 50) {
       fill(100, 100, 100);
@@ -550,52 +563,20 @@ function drawGameOver() {
     fill(255);
     text("Skip", skipX, buttonY);
   } else {
-    // Different messages for submit vs skip
-    if (emailInput !== '') {  // If email exists, score was submitted
+    // Hide input when not needed
+    emailInputElement.position(-1000, -1000);
+    
+    if (emailInput !== '') {
       text("Score submitted!", width/2, height/2 + 90);
     }
     text("Click to play again", width/2, height/2 + 120);
   }
 }
 
-// Update key handling for email input
-function keyPressed() {
-  if (gameOver && !submittingScore) {
-    if (keyCode === BACKSPACE) {
-      emailInput = emailInput.slice(0, -1);
-    } else if (keyCode === ENTER) {
-      submitScore();
-    } else if (key.length === 1) {  // Allow any single character
-      if (emailInput.length < 30) {  // Keep the length limit
-        emailInput += key;
-      }
-    }
-  }
-}
-
-// Update mouseClicked to handle the adjusted button positions
-function mouseClicked() {
-  if (gameOver && !submittingScore) {
-    let buttonY = height/2 + 140;
-    let submitX = width/2 - 60;
-    let skipX = width/2 + 60;
-    
-    // Check submit button
-    if (mouseY > buttonY - 15 && mouseY < buttonY + 15 && 
-        mouseX > submitX - 50 && mouseX < submitX + 50) {
-      submitScore();
-    }
-    // Check skip button
-    else if (mouseY > buttonY - 15 && mouseY < buttonY + 15 && 
-             mouseX > skipX - 50 && mouseX < skipX + 50) {
-      submittingScore = true;
-      emailInput = '';  // Clear email to indicate skip
-    }
-  }
-}
-
-// Add score submission function
+// Update submitScore function
 async function submitScore() {
+  emailInput = emailInputElement.value();
+  
   if (!emailInput.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
     alert('Please enter a valid email address');
     return;
@@ -611,6 +592,7 @@ async function submitScore() {
     if (error) throw error;
     
     submittingScore = true;
+    emailInputElement.position(-1000, -1000); // Hide input
     await fetchLeaderboard();
   } catch (error) {
     console.error('Error submitting score:', error);
@@ -659,10 +641,9 @@ function hideLeaderboard() {
   document.getElementById('leaderboardPanel').style.display = 'none';
 }
 
-// Update mousePressed to handle game restart and close leaderboard
+// Update mousePressed to handle game restart
 function mousePressed() {
   if (gameOver && submittingScore) {
-    // Hide leaderboard panel
     hideLeaderboard();
     
     // Reset game state
@@ -680,6 +661,8 @@ function mousePressed() {
     rapidFireEndTime = 0;
     submittingScore = false;
     emailInput = '';
+    emailInputElement.value(''); // Clear input value
+    emailInputElement.position(-1000, -1000); // Hide input
   }
 }
 
@@ -732,5 +715,27 @@ function drawGlowingPoint(x, y, c, intensity) {
     stroke(c);
     strokeWeight(i);
     point(x, y);
+  }
+}
+
+// Add mouseClicked function back with updated logic
+function mouseClicked() {
+  if (gameOver && !submittingScore) {
+    let buttonY = height/2 + 140;
+    let submitX = width/2 - 60;
+    let skipX = width/2 + 60;
+    
+    // Check submit button
+    if (mouseY > buttonY - 15 && mouseY < buttonY + 15 && 
+        mouseX > submitX - 50 && mouseX < submitX + 50) {
+      submitScore();
+    }
+    // Check skip button
+    else if (mouseY > buttonY - 15 && mouseY < buttonY + 15 && 
+             mouseX > skipX - 50 && mouseX < skipX + 50) {
+      submittingScore = true;
+      emailInput = '';
+      emailInputElement.position(-1000, -1000); // Hide input
+    }
   }
 }
